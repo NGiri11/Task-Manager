@@ -196,11 +196,3 @@ def dashboard(user=Depends(verify_token), db: Session = Depends(get_db)):
         "completed_tasks": completed,
         "pending_tasks": pending
     }
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=int(os.getenv("PORT", 8000))
-    )
