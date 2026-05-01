@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from schemas import UserCreate
 from auth import hash_password, verify_password, create_token, verify_token
 from datetime import datetime
+import os
 
 app = FastAPI()
 
@@ -195,3 +196,11 @@ def dashboard(user=Depends(verify_token), db: Session = Depends(get_db)):
         "completed_tasks": completed,
         "pending_tasks": pending
     }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 8000))
+    )
