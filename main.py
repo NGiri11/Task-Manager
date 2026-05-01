@@ -8,8 +8,6 @@ from datetime import datetime
 
 app = FastAPI()
 
-Base.metadata.create_all(bind=engine)
-
 
 @app.get("/")
 def home():
