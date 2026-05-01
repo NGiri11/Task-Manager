@@ -1,14 +1,18 @@
 from fastapi import FastAPI, Depends, HTTPException
-from database import Base, engine, SessionLocal
+from database import SessionLocal
 from models import *
 from sqlalchemy.orm import Session
 from schemas import UserCreate
 from auth import hash_password, verify_password, create_token, verify_token
 from datetime import datetime
 import os
+from pydantic import BaseModel
 
 app = FastAPI()
 
+class LoginSchema(BaseModel):
+    email: str
+    password: str
 
 @app.get("/")
 def home():
@@ -17,12 +21,16 @@ def home():
 
 # DB Dependency
 def get_db():
-    db = SessionLocal()
     try:
+        db = SessionLocal()
         yield db
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Database connection error")
     finally:
-        db.close()
-
+        try:
+            db.close()
+        except:
+            pass
 
 # REGISTER
 @app.post("/register")
@@ -52,13 +60,13 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 # LOGIN
 @app.post("/login")
-def login(email: str, password: str, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == email).first()
+def login(data: LoginSchema, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    if not verify_password(password, user.password):
+    if not verify_password(data.password, user.password):
         raise HTTPException(status_code=401, detail="Wrong password")
 
     token = create_token({
