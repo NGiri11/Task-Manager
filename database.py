@@ -16,8 +16,7 @@ if DATABASE_URL.startswith("mysql://"):
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
-    pool_recycle=280,
-    connect_args={"connect_timeout": 10}
+    pool_recycle=280
 )
 
 SessionLocal = sessionmaker(bind=engine)
